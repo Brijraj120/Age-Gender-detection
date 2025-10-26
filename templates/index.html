@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Age & Gender Detection System</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Navigation Styles */
+        .main-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        /* Section Styles */
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        /* Enhanced Dashboard Stats */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.threat-high {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .stat-card.threat-medium {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .stat-card.threat-low {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-trend {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .stat-trend.positive { color: #00b894; }
+        .stat-trend.negative { color: #ff6b6b; }
+
+        /* Emotion Indicators */
+        .emotion-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .emotion-indicator {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            min-width: 80px;
+        }
+
+        .emotion-emoji {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .emotion-count {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed #667eea;
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        /* Result Styles */
+        .result {
+            margin-top: 30px;
+        }
+
+        .image-container {
+            max-width: 100%;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .face-result {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .face-result.unauthorized {
+            border-left-color: #ff6b6b;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        }
+
+        .face-result.recognized {
+            border-left-color: #00b894;
+            background: linear-gradient(135deg, #55efc4 0%, #81ecec 100%);
+        }
+
+        .emotion-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .emotion-happy { background: #00b894; color: white; }
+        .emotion-sad { background: #0984e3; color: white; }
+        .emotion-angry { background: #d63031; color: white; }
+        .emotion-neutral { background: #636e72; color: white; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        /* Enhanced Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .analytics-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .heatmap-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .heatmap-container img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Threat Alerts */
+        .threat-alerts {
+            margin: 30px 0;
+        }
+
+        .threat-item {
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 5px solid;
+        }
+
+        .threat-high {
+            border-left-color: #ff6b6b;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        }
+
+        .threat-medium {
+            border-left-color: #f39c12;
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+        }
+
+        .threat-low {
+            border-left-color: #00b894;
+            background: linear-gradient(135deg, #55efc4 0%, #81ecec 100%);
+        }
+
+        /* Behavior Analysis */
+        .behavior-list {
+            margin: 20px 0;
+        }
+
+        .behavior-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #f39c12;
+        }
+
+        /* Mobile Camera Section */
+        .streams-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stream-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e9ecef;
+            transition: transform 0.3s ease;
+        }
+
+        .stream-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+        }
+
+        .stream-video {
+            width: 100%;
+            border-radius: 10px;
+            background: #000;
+        }
+
+        .stream-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .recording-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .recording-active {
+            background: #ff6b6b;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .recording-inactive {
+            background: #6c757d;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-nav {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .dashboard-stats,
+            .streams-container,
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .section-header h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Real-time Updates */
+        .live-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #ff6b6b;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        /* Emotion Analysis Section */
+        .mood-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .mood-emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        /* Face Recognition */
+        .face-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .face-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .face-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }   
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Enhanced Main Navigation -->
+        <nav class="main-nav">
+            <button class="nav-btn active" onclick="showSection('dashboard')">
+                📊 Live Dashboard
+            </button>
+            <button class="nav-btn" onclick="showSection('upload')">
+                📷 Image Analysis
+            </button>
+            <button class="nav-btn" onclick="showSection('emotion')">
+                😊 Emotion Analysis
+            </button>
+            <button class="nav-btn" onclick="showSection('webcam')">
+                🎥 Live Webcam
+            </button>
+            <button class="nav-btn" onclick="showSection('mobile')">
+                📱 Mobile Streams
+            </button>
+            <button class="nav-btn" onclick="showSection('crowd')">
+                👥 Crowd Analytics
+            </button>
+            <button class="nav-btn" onclick="showSection('behavior')">
+                🚶 Behavior Analysis
+            </button>
+            <button class="nav-btn" onclick="showSection('security')">
+                🛡️ Security Dashboard
+            </button>
+            <button class="nav-btn" onclick="showSection('analytics')">
+                📈 Analytics
+            </button>
+        </nav>
+
+        <!-- Live Dashboard Section -->
+        <section id="dashboard-section" class="section active">
+            <div class="section-header">
+                <h1>📊 Real-time Dashboard <span class="live-badge">LIVE</span></h1>
+                <p>Comprehensive overview of all system activities and analytics</p>
+            </div>
+
+            <!-- Enhanced Stats Grid -->
+            <div class="dashboard-stats" id="dashboardStats">
+                <div class="stat-card" id="peopleCard">
+                    <div>👥 Current People</div>
+                    <div class="stat-value">0</div>
+                    <div>Across all streams</div>
+                </div>
+                <div class="stat-card" id="threatCard">
+                    <div>🚨 Threat Level</div>
+                    <div class="stat-value">LOW</div>
+                    <div>System Security</div>
+                </div>
+                <div class="stat-card" id="streamsCard">
+                    <div>📱 Active Streams</div>
+                    <div class="stat-value">0</div>
+                    <div>Mobile cameras</div>
+                </div>
+                <div class="stat-card" id="densityCard">
+                    <div>📊 Crowd Density</div>
+                    <div class="stat-value">0%</div>
+                    <div>Area utilization</div>
+                </div>
+            </div>
+
+            <!-- Emotion Distribution -->
+            <div class="analytics-card">
+                <h3>😊 Real-time Emotion Distribution</h3>
+                <div class="emotion-indicators" id="emotionIndicators">
+                    <div class="emotion-indicator">
+                        <div class="emotion-emoji">😊</div>
+                        <div class="emotion-count" id="happyCount">0</div>
+                        <div>Happy</div>
+                    </div>
+                    <div class="emotion-indicator">
+                        <div class="emotion-emoji">😐</div>
+                        <div class="emotion-count" id="neutralCount">0</div>
+                        <div>Neutral</div>
+                    </div>
+                    <div class="emotion-indicator">
+                        <div class="emotion-emoji">😢</div>
+                        <div class="emotion-count" id="sadCount">0</div>
+                        <div>Sad</div>
+                    </div>
+                    <div class="emotion-indicator">
+                        <div class="emotion-emoji">😠</div>
+                        <div class="emotion-count" id="angryCount">0</div>
+                        <div>Angry</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="controls">
+                <button class="btn btn-success" onclick="startRecording()">
+                    🔴 Start Recording
+                </button>
+                <button class="btn btn-danger" onclick="stopRecording()">
+                    ⏹️ Stop Recording
+                </button>
+                <button class="btn" onclick="generateReport()">
+                    📄 Generate Report
+                </button>
+                <button class="btn btn-warning" onclick="toggleMonitoring()">
+                    ⏸️ Pause Monitoring
+                </button>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h4>🔄 Recent Detections</h4>
+                    <div id="recentDetections">
+                        <p>No recent activity</p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h4>⚠️ Active Alerts</h4>
+                    <div id="activeAlerts">
+                        <p>No active alerts</p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h4>📱 Stream Status</h4>
+                    <div id="streamStatus">
+                        <p>No active streams</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enhanced Image Upload Section -->
+        <section id="upload-section" class="section">
+            <div class="section-header">
+                <h1>🎭 Enhanced Image Analysis</h1>
+                <p>Upload an image for comprehensive analysis including age, gender, emotion, and face recognition</p>
+            </div>
+            
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    📁 Choose Image
+                </button>
+                <p id="fileName" style="margin-top: 15px; color: #666; font-size: 14px;"></p>
+                <button class="btn" id="analyzeBtn" onclick="uploadImage()" style="margin-top: 15px;">
+                    🔍 Analyze Image
+                </button>
+                <p style="margin-top: 15px; color: #888;">or drag and drop an image here</p>
+            </div>
+            
+            <div id="loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Processing image with enhanced AI analysis...</p>
+            </div>
+            
+            <div id="upload-result"></div>
+        </section>
+
+        <!-- Emotion Analysis Section -->
+        <section id="emotion-section" class="section">
+            <div class="section-header">
+                <h1>😊 Emotion & Mood Analysis</h1>
+                <p>Advanced emotion detection and mood analysis from images</p>
+            </div>
+            
+            <div class="upload-area">
+                <input type="file" id="emotionFileInput" accept="image/*" style="display: none;">
+                <button class="btn" onclick="analyzeEmotion()">
+                    😊 Analyze Emotions
+                </button>
+                <p style="margin-top: 15px; color: #888;">Upload image for emotion analysis</p>
+            </div>
+            
+            <div id="emotion-loading" class="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Analyzing emotions and mood patterns...</p>
+            </div>
+            
+            <div id="emotion-results"></div>
+        </section>
+
+        <!-- Enhanced Webcam Section -->
+        <section id="webcam-section" class="section">
+            <div class="section-header">
+                <h1>📹 Enhanced Live Detection</h1>
+                <p>Real-time detection with emotion analysis and threat detection</p>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" onclick="startCamera()">Start Camera</button>
+                <button class="btn btn-danger" onclick="stopCamera()">Stop Camera</button>
+                <button class="btn" onclick="toggleFaceRecognition()">Toggle Face Recognition</button>
+            </div>
+            
+            <div class="video-container">
+                <img id="videoFeed" src="" alt="Live video feed">
+            </div>
+            
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h4>Real-time Stats</h4>
+                    <div id="webcamStats">
+                        <p>Faces detected: <span id="webcamFaceCount">0</span></p>
+                        <p>Threat level: <span id="webcamThreatLevel">LOW</span></p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h4>Emotion Distribution</h4>
+                    <div id="webcamEmotions">
+                        <p>Waiting for detection...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enhanced Mobile Camera Section -->
+        <section id="mobile-section" class="section">
+            <div class="section-header">
+                <h1>📱 Enhanced Mobile Streams</h1>
+                <p>Connect multiple mobile devices with advanced analytics</p>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-success" onclick="startRecording()">🔴 Start Recording</button>
+                <button class="btn btn-danger" onclick="stopRecording()">⏹️ Stop Recording</button>
+                <button class="btn" onclick="refreshStreams()">🔄 Refresh Streams</button>
+                <div id="recordingStatus" class="recording-status recording-inactive">Not Recording</div>
+            </div>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalStreams">0</div>
+                    <div>Active Streams</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPeople">0</div>
+                    <div>People Detected</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="maleCount">0</div>
+                    <div>Male</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="femaleCount">0</div>
+                    <div>Female</div>
+                </div>
+            </div>
+
+            <div class="streams-container" id="streamsContainer">
+                <div class="stream-card">
+                    <h3>📲 How to Connect Mobile</h3>
+                    <p>1. Open this page on your mobile device</p>
+                    <p>2. Allow camera access</p>
+                    <p>3. Your device will appear here automatically</p>
+                    <p><strong>Mobile URL:</strong> <span id="mobileUrl"></span></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Crowd Analytics Section -->
+        <section id="crowd-section" class="section">
+            <div class="section-header">
+                <h1>👥 Crowd Intelligence</h1>
+                <p>Real-time crowd density, heatmaps, and behavior analysis</p>
+            </div>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="crowdDensity">0%</div>
+                    <div>Crowd Density</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="crowdPeople">0</div>
+                    <div>Total People</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="densityZones">0</div>
+                    <div>High Density Zones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgMood">😊</div>
+                    <div>Average Mood</div>
+                </div>
+            </div>
+
+            <div class="heatmap-container">
+                <h4>Real-time Crowd Heatmap</h4>
+                <img id="crowdHeatmap" src="" alt="Crowd Heatmap" style="max-width: 100%; height: 400px; object-fit: cover;">
+                <p style="margin-top: 10px; color: #666;">Heat intensity shows crowd concentration areas</p>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h4>Density Zones</h4>
+                    <div id="densityBreakdown">
+                        <p>Loading density analysis...</p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h4>Crowd Insights</h4>
+                    <div id="crowdInsights">
+                        <p>Analyzing crowd patterns...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Behavior Analysis Section -->
+        <section id="behavior-section" class="section">
+            <div class="section-header">
+                <h1>🚶 Behavior & Movement Analysis</h1>
+                <p>Track person movement, detect suspicious behaviors, and analyze patterns</p>
+            </div>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="trackedPersons">0</div>
+                    <div>Tracked Persons</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="activeGroups">0</div>
+                    <div>Active Groups</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="suspiciousCount">0</div>
+                    <div>Suspicious Behaviors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgSpeed">0</div>
+                    <div>Avg Speed (px/s)</div>
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h4>🚨 Suspicious Behaviors</h4>
+                    <div class="behavior-list" id="suspiciousBehaviors">
+                        <p>No suspicious behaviors detected</p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h4>👥 Group Formations</h4>
+                    <div id="groupFormations">
+                        <p>No active groups detected</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <h4>Movement Patterns</h4>
+                <div id="movementPatterns">
+                    <p>Tracking movement patterns...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Enhanced Security Dashboard Section -->
+        <section id="security-section" class="section">
+            <div class="section-header">
+                <h1>🛡️ Enhanced Security Dashboard</h1>
+                <p>Comprehensive security monitoring with advanced threat detection</p>
+            </div>
+
+            <div class="dashboard-stats">
+                <div class="stat-card" id="totalAlerts">
+                    <div>🚨 Total Alerts</div>
+                    <div class="stat-value">0</div>
+                    <div>Last 24 hours</div>
+                </div>
+                <div class="stat-card" id="currentStatus">
+                    <div>📊 System Status</div>
+                    <div class="stat-value">ACTIVE</div>
+                    <div>All systems operational</div>
+                </div>
+                <div class="stat-card" id="peopleCount">
+                    <div>👥 Current People</div>
+                    <div class="stat-value">0</div>
+                    <div>Across all cameras</div>
+                </div>
+                <div class="stat-card" id="unauthorizedCount">
+                    <div>⛔ Unauthorized</div>
+                    <div class="stat-value">0</div>
+                    <div>Access violations</div>
+                </div>
+            </div>
+
+            <div class="threat-alerts">
+                <h3>🚨 Active Threat Alerts</h3>
+                <div id="threatAlertsList">
+                    <div class="threat-item threat-low">
+                        <strong>No active threats</strong>
+                        <p>System monitoring in progress...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" onclick="toggleMonitoring()">⏸️ Pause Monitoring</button>
+                <button class="btn btn-danger" onclick="lockdown()">🔒 Emergency Lockdown</button>
+                <button class="btn btn-success" onclick="generateReport()">📄 Generate Report</button>
+                <button class="btn" onclick="viewAccessRules()">⚙️ Access Rules</button>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h4>Threat Analysis</h4>
+                    <div id="threatAnalysis">
+                        <p>Analyzing security threats...</p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h4>Security Events</h4>
+                    <div id="securityEvents">
+                        <p>No recent security events</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics-section" class="section">
+            <div class="section-header">
+                <h1>📊 Advanced Analytics & Reports</h1>
+                <p>Comprehensive analytics, session data, and detailed reports</p>
+            </div>
+
+            <div class="sessions-list">
+                <h3>📁 Recording Sessions</h3>
+                <div id="sessionsList">
+                    <div class="session-item" onclick="loadSession('demo_session')">
+                        <strong>Demo Session</strong><br>
+                        <small>Start: 2024-01-01 12:00:00 | Frames: 150</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-display" id="analyticsDisplay">
+                <h3 id="sessionTitle">Session Analytics</h3>
+                
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalDetections">0</div>
+                        <div>Total Detections</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="malePercentage">0%</div>
+                        <div>Male</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="femalePercentage">0%</div>
+                        <div>Female</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgPeople">0</div>
+                        <div>Avg People/Frame</div>
+                    </div>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h4>Emotion Analytics</h4>
+                        <div id="emotionAnalytics">
+                            <p>Emotion data will appear here</p>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h4>Behavior Patterns</h4>
+                        <div id="behaviorAnalytics">
+                            <p>Behavior analysis will appear here</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="detailedStats"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Socket.IO Library -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <script>
+        // Enhanced Mobile Camera Streaming with New Features
+class MobileCameraStream {
+    constructor(streamId = null) {
+        this.streamId = streamId || `mobile_${Date.now()}`;
+        this.isStreaming = false;
+        this.videoElement = null;
+        this.canvasElement = null;
+        this.ctx = null;
+        this.streamInterval = null;
+        this.socket = null;
+        this.settings = {
+            blurFaces: false,
+            enableEmotion: true,
+            enableRecognition: true,
+            quality: 0.8,
+            fps: 2
+        };
+    }
+
+    async initialize() {
+        try {
+            // Register with server
+            const response = await fetch('/mobile/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({stream_id: this.streamId})
+            });
+
+            const data = await response.json();
+            this.streamId = data.stream_id;
+
+            // Get camera access
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            });
+
+            this.setupVideoElements(stream);
+            this.initializeSocket();
+            
+            console.log('Enhanced mobile camera streaming started:', this.streamId);
+            
+        } catch (error) {
+            console.error('Error initializing mobile camera:', error);
+            alert('Camera access denied or not available');
+        }
+    }
+
+    setupVideoElements(stream) {
+        // Create video element
+        this.videoElement = document.createElement('video');
+        this.videoElement.srcObject = stream;
+        this.videoElement.playsInline = true;
+        this.videoElement.setAttribute('autoplay', '');
+        this.videoElement.setAttribute('muted', '');
+        this.videoElement.play();
+
+        // Create canvas for capturing frames
+        this.canvasElement = document.createElement('canvas');
+        this.ctx = this.canvasElement.getContext('2d');
+    }
+
+    initializeSocket() {
+        try {
+            this.socket = io();
+            
+            this.socket.on('connect', () => {
+                console.log('Socket connected for stream:', this.streamId);
+                this.socket.emit('register_stream', { stream_id: this.streamId });
+                this.startSocketStreaming();
+            });
+
+            this.socket.on('stream_processed', (data) => {
+                this.handleProcessedFrame(data);
+            });
+
+            this.socket.on('dashboard_update', (data) => {
+                this.updateDashboard(data);
+            });
+
+            this.socket.on('error', (error) => {
+                console.error('Socket error:', error);
+            });
+
+        } catch (error) {
+            console.warn('Socket.IO not available, falling back to HTTP', error);
+            this.startHTTPStreaming();
+        }
+    }
+
+    startSocketStreaming() {
+        this.isStreaming = true;
+        const interval = 1000 / this.settings.fps;
+
+        this.streamInterval = setInterval(() => {
+            if (this.videoElement.readyState === this.videoElement.HAVE_ENOUGH_DATA) {
+                this.captureAndSendFrame();
+            }
+        }, interval);
+    }
+
+    startHTTPStreaming() {
+        this.isStreaming = true;
+        
+        this.streamInterval = setInterval(async () => {
+            if (this.videoElement.readyState === this.videoElement.HAVE_ENOUGH_DATA) {
+                await this.captureAndSendHTTPFrame();
+            }
+        }, 1000);
+    }
+
+    captureAndSendFrame() {
+        // Set canvas dimensions to match video
+        this.canvasElement.width = this.videoElement.videoWidth;
+        this.canvasElement.height = this.videoElement.videoHeight;
+
+        // Draw video frame to canvas
+        this.ctx.drawImage(this.videoElement, 0, 0);
+
+        // Convert to data URL and send via socket
+        const dataUrl = this.canvasElement.toDataURL('image/jpeg', this.settings.quality);
+        
+        if (this.socket && this.socket.connected) {
+            this.socket.emit('frame', {
+                stream_id: this.streamId,
+                image: dataUrl,
+                settings: this.settings
+            });
+        }
+    }
+
+    async captureAndSendHTTPFrame() {
+        this.canvasElement.width = this.videoElement.videoWidth;
+        this.canvasElement.height = this.videoElement.videoHeight;
+        this.ctx.drawImage(this.videoElement, 0, 0);
+
+        this.canvasElement.toBlob(async (blob) => {
+            const formData = new FormData();
+            formData.append('image', blob, 'frame.jpg');
+
+            try {
+                const response = await fetch(`/mobile/upload_frame/${this.streamId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.handleProcessedFrame(data);
+                }
+            } catch (error) {
+                console.error('Error sending frame via HTTP:', error);
+            }
+        }, 'image/jpeg', this.settings.quality);
+    }
+
+    handleProcessedFrame(data) {
+        // Update preview with processed image
+        const preview = document.getElementById('mobilePreview');
+        if (preview && data.processed_image) {
+            preview.src = 'data:image/jpeg;base64,' + data.processed_image;
+        }
+
+        // Update stream info
+        this.updateStreamInfo(data);
+    }
+
+    updateStreamInfo(data) {
+        const infoElement = document.getElementById('streamInfo');
+        if (infoElement) {
+            const threats = data.threats || [];
+            const threatLevel = data.threat_level || 'low';
+            
+            let infoHTML = `
+                <strong>Stream ID:</strong> ${this.streamId}<br>
+                <strong>Detections:</strong> ${data.detections?.length || 0}<br>
+                <strong>Threat Level:</strong> <span style="color: ${this.getThreatColor(threatLevel)}">${threatLevel.toUpperCase()}</span>
+            `;
+
+            if (threats.length > 0) {
+                infoHTML += `<br><strong>Active Threats:</strong> ${threats.length}`;
+            }
+
+            infoElement.innerHTML = infoHTML;
+        }
+    }
+
+    updateDashboard(data) {
+        // Update global dashboard elements
+        const peopleElement = document.getElementById('currentPeople');
+        const threatElement = document.getElementById('threatLevel');
+        const streamsElement = document.getElementById('activeStreams');
+
+        if (peopleElement) peopleElement.textContent = data.current_people || '0';
+        if (threatElement) {
+            threatElement.textContent = data.threat_level?.toUpperCase() || 'LOW';
+            threatElement.style.color = this.getThreatColor(data.threat_level);
+        }
+        if (streamsElement) streamsElement.textContent = data.active_streams || '0';
+    }
+
+    getThreatColor(level) {
+        const colors = {
+            'low': '#00b894',
+            'medium': '#f39c12',
+            'high': '#ff6b6b'
+        };
+        return colors[level] || '#00b894';
+    }
+
+    updateSettings(newSettings) {
+        this.settings = { ...this.settings, ...newSettings };
+        
+        // Update on server
+        if (this.socket) {
+            this.socket.emit('update_stream_settings', {
+                stream_id: this.streamId,
+                settings: this.settings
+            });
+        }
+    }
+
+    stopStreaming() {
+        this.isStreaming = false;
+        if (this.streamInterval) {
+            clearInterval(this.streamInterval);
+        }
+        if (this.videoElement && this.videoElement.srcObject) {
+            this.videoElement.srcObject.getTracks().forEach(track => track.stop());
+        }
+        if (this.socket) {
+            this.socket.disconnect();
+        }
+        
+        console.log('Mobile camera streaming stopped:', this.streamId);
+    }
+}
+
+// Enhanced Global Application State
+const AppState = {
+    isMonitoring: true,
+    currentSection: 'dashboard',
+    socket: null,
+    dashboardData: {
+        currentPeople: 0,
+        threatLevel: 'low',
+        activeStreams: 0,
+        crowdDensity: 0,
+        emotionDistribution: {}
+    },
+    updateInterval: null
+};
+
+// Enhanced Navigation Functionality
+function showSection(sectionName) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected section
+    const sectionElement = document.getElementById(sectionName + '-section');
+    if (sectionElement) {
+        sectionElement.classList.add('active');
+        
+        // Add active class to clicked button
+        event.target.classList.add('active');
+        
+        // Initialize section-specific functionality
+        initializeSection(sectionName);
+    }
+    
+    AppState.currentSection = sectionName;
+}
+
+function initializeSection(sectionName) {
+    switch(sectionName) {
+        case 'dashboard':
+            initializeDashboard();
+            break;
+        case 'webcam':
+            startCamera();
+            break;
+        case 'mobile':
+            initializeMobileSection();
+            break;
+        case 'crowd':
+            initializeCrowdAnalytics();
+            break;
+        case 'behavior':
+            initializeBehaviorAnalysis();
+            break;
+        case 'security':
+            initializeSecurityDashboard();
+            break;
+        case 'emotion':
+            initializeEmotionAnalysis();
+            break;
+    }
+}
+
+// Enhanced Dashboard Functionality
+function initializeDashboard() {
+    startDashboardUpdates();
+    loadDashboardData();
+}
+
+function startDashboardUpdates() {
+    // Clear existing interval
+    if (AppState.updateInterval) {
+        clearInterval(AppState.updateInterval);
+    }
+    
+    // Update dashboard every 3 seconds
+    AppState.updateInterval = setInterval(() => {
+        loadDashboardData();
+        updateRealTimeStats();
+    }, 3000);
+}
+
+async function loadDashboardData() {
+    try {
+        const response = await fetch('/dashboard/stats');
+        const data = await response.json();
+        
+        if (data.success !== false) {
+            updateDashboardUI(data);
+        }
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+function updateDashboardUI(data) {
+    // Update stat cards
+    updateStatCard('peopleCard', data.current_people || 0);
+    updateStatCard('streamsCard', data.active_streams || 0);
+    updateStatCard('densityCard', (data.crowd_density || 0) + '%');
+    
+    // Update threat card with color coding
+    const threatCard = document.getElementById('threatCard');
+    const threatLevel = data.threat_level || 'low';
+    if (threatCard) {
+        threatCard.className = `stat-card threat-${threatLevel}`;
+        threatCard.querySelector('.stat-value').textContent = threatLevel.toUpperCase();
+    }
+    
+    // Update emotion distribution
+    updateEmotionDistribution(data.emotion_distribution || {});
+    
+    // Update recent activity
+    updateRecentActivity(data);
+}
+
+function updateStatCard(cardId, value) {
+    const card = document.getElementById(cardId);
+    if (card) {
+        const valueElement = card.querySelector('.stat-value');
+        if (valueElement) {
+            valueElement.textContent = value;
+        }
+    }
+}
+
+function updateEmotionDistribution(distribution) {
+    const emotions = {
+        'Happy': { element: 'happyCount', emoji: '😊' },
+        'Neutral': { element: 'neutralCount', emoji: '😐' },
+        'Sad': { element: 'sadCount', emoji: '😢' },
+        'Angry': { element: 'angryCount', emoji: '😠' },
+        'Fear': { element: 'fearCount', emoji: '😨' },
+        'Surprise': { element: 'surpriseCount', emoji: '😲' },
+        'Disgust': { element: 'disgustCount', emoji: '🤢' }
+    };
+    
+    Object.entries(emotions).forEach(([emotion, info]) => {
+        const element = document.getElementById(info.element);
+        if (element) {
+            element.textContent = distribution[emotion] || 0;
+        }
+    });
+}
+
+function updateRecentActivity(data) {
+    const detectionsElement = document.getElementById('recentDetections');
+    const alertsElement = document.getElementById('activeAlerts');
+    const streamsElement = document.getElementById('streamStatus');
+    
+    if (detectionsElement) {
+        detectionsElement.innerHTML = `
+            <p><strong>Total Detections:</strong> ${data.total_detections || 0}</p>
+            <p><strong>Current People:</strong> ${data.current_people || 0}</p>
+            <p><strong>Active Groups:</strong> ${data.active_groups || 0}</p>
+        `;
+    }
+    
+    if (alertsElement) {
+        const alertCount = data.suspicious_behaviors || 0;
+        alertsElement.innerHTML = `
+            <p><strong>Active Alerts:</strong> ${alertCount}</p>
+            <p><strong>Threat Level:</strong> ${data.threat_level || 'low'}</p>
+            <p><strong>System Uptime:</strong> ${formatUptime(data.system_uptime)}</p>
+        `;
+    }
+    
+    if (streamsElement) {
+        streamsElement.innerHTML = `
+            <p><strong>Active Streams:</strong> ${data.active_streams || 0}</p>
+            <p><strong>Crowd Density:</strong> ${data.crowd_density || 0}%</p>
+            <p><strong>Last Update:</strong> ${new Date().toLocaleTimeString()}</p>
+        `;
+    }
+}
+
+function formatUptime(seconds) {
+    if (!seconds) return '0s';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${hours}h ${minutes}m ${secs}s`;
+}
+
+// Enhanced Image Upload with Emotion Analysis
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const fileName = document.getElementById('fileName');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    
+    if (this.files[0]) {
+        fileName.textContent = 'Selected: ' + this.files[0].name;
+        fileName.style.color = '#00b894';
+        analyzeBtn.disabled = false;
+        
+        // Preview image
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Could add image preview here
+        };
+        reader.readAsDataURL(this.files[0]);
+    } else {
+        fileName.textContent = 'No file selected';
+        fileName.style.color = '#666';
+        analyzeBtn.disabled = true;
+    }
+});
+
+// Enhanced Drag and Drop
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('fileInput').files = files;
+        const event = new Event('change');
+        document.getElementById('fileInput').dispatchEvent(event);
+    }
+});
+
+// Enhanced Image Analysis
+async function uploadImage() {
+    const fileInput = document.getElementById('fileInput');
+    const resultDiv = document.getElementById('upload-result');
+    const loadingDiv = document.getElementById('loading');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    
+    if (!fileInput.files[0]) {
+        showError(resultDiv, 'Please select an image first');
+        return;
+    }
+    
+    // Show loading
+    showLoading(loadingDiv, analyzeBtn, 'Processing with enhanced AI...');
+    resultDiv.innerHTML = '';
+    
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    
+    try {
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        // Hide loading
+        hideLoading(loadingDiv, analyzeBtn);
+        
+        if (data.success) {
+            displayEnhancedResults(data, resultDiv);
+        } else {
+            showError(resultDiv, data.error || 'Analysis failed');
+        }
+        
+    } catch (error) {
+        hideLoading(loadingDiv, analyzeBtn);
+        showError(resultDiv, `Network error: ${error.message}`);
+        console.error('Upload error:', error);
+    }
+}
+
+function displayEnhancedResults(data, resultDiv) {
+    let resultHTML = `
+        <div class="success">
+            <h3>✅ Enhanced Analysis Complete</h3>
+            <p>Found ${data.faces_detected} face(s) with comprehensive analysis</p>
+        </div>
+    `;
+    
+    // Mood Summary
+    if (data.mood_summary) {
+        const mood = data.mood_summary;
+        resultHTML += `
+            <div class="mood-summary">
+                <div class="mood-emoji">${getMoodEmoji(mood.overall_mood)}</div>
+                <h4>Overall Mood: ${mood.overall_mood}</h4>
+                <p>Dominant Emotion: ${mood.dominant_emotion} (${mood.confidence}% confidence)</p>
+            </div>
+        `;
+    }
+    
+    // Individual Face Results
+    if (data.results && data.results.length > 0) {
+        data.results.forEach((result, index) => {
+            const isUnauthorized = !isAgeAuthorized(result.custom_age);
+            const emotionClass = getEmotionClass(result.emotion);
+            const recognizedBadge = result.recognized_person ? 
+                `<span style="background: #00b894; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">Recognized: ${result.recognized_person}</span>` : '';
+            
+            resultHTML += `
+                <div class="face-result ${isUnauthorized ? 'unauthorized' : ''}">
+                    <h4>👤 Face ${index + 1} ${recognizedBadge}</h4>
+                    <p>
+                        <strong>🎭 Gender:</strong> ${result.gender} 
+                        <small>(${result.gender_confidence}% confidence)</small>
+                    </p>
+                    <p>
+                        <strong>📅 Age:</strong> ${result.custom_age} 
+                        <small>(${result.age_confidence}% confidence)</small>
+                        ${isUnauthorized ? ' <span style="color: #ff6b6b;">⛔</span>' : ' <span style="color: #00b894;">✓</span>'}
+                    </p>
+                    <p>
+                        <strong>😊 Emotion:</strong> 
+                        <span class="emotion-badge emotion-${emotionClass}">${result.emotion}</span>
+                        <small>(${result.emotion_confidence}% confidence)</small>
+                    </p>
+                    <p><strong>📍 Location:</strong> X:${result.bbox[0]}, Y:${result.bbox[1]}</p>
+                    <p><strong>🔍 Face Detection:</strong> ${result.face_confidence}% confidence</p>
+                </div>
+            `;
+        });
+    } else {
+        resultHTML += '<div class="error"><p>No faces detected in the image. Try another image with clearer faces.</p></div>';
+    }
+    
+    // Processed Image
+    if (data.image) {
+        resultHTML += `
+            <div class="image-container">
+                <h4>🖼️ Processed Image with Enhanced Analysis</h4>
+                <img src="data:image/jpeg;base64,${data.image}" alt="Processed Image with enhanced detections">
+            </div>
+        `;
+    }
+    
+    // Security Check Summary
+    if (data.security_check) {
+        const security = data.security_check;
+        resultHTML += `
+            <div class="analytics-card">
+                <h4>🛡️ Security Assessment</h4>
+                <p><strong>Authorized Persons:</strong> ${security.authorized || 0}</p>
+                <p><strong>Unauthorized Persons:</strong> ${security.unauthorized || 0}</p>
+                <p><strong>Total Alerts:</strong> ${security.alerts?.length || 0}</p>
+            </div>
+        `;
+    }
+    
+    resultDiv.innerHTML = resultHTML;
+}
+
+// Enhanced Emotion Analysis
+async function analyzeEmotion() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    
+    fileInput.onchange = async function(e) {
+        if (!fileInput.files[0]) return;
+        
+        const loadingDiv = document.getElementById('emotion-loading');
+        const resultsDiv = document.getElementById('emotion-results');
+        
+        showLoading(loadingDiv, null, 'Analyzing emotions and mood patterns...');
+        resultsDiv.innerHTML = '';
+        
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        
+        try {
+            const response = await fetch('/emotion/analyze', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            hideLoading(loadingDiv, null);
+            
+            if (data.success) {
+                displayEmotionResults(data, resultsDiv);
+            } else {
+                showError(resultsDiv, data.error || 'Emotion analysis failed');
+            }
+            
+        } catch (error) {
+            hideLoading(loadingDiv, null);
+            showError(resultsDiv, `Analysis error: ${error.message}`);
+        }
+    };
+    
+    fileInput.click();
+}
+
+function displayEmotionResults(data, resultsDiv) {
+    let html = `
+        <div class="success">
+            <h3>😊 Emotion Analysis Complete</h3>
+            <p>Analyzed ${data.total_faces} faces for emotional content</p>
+        </div>
+    `;
+    
+    // Mood Summary
+    if (data.mood_summary) {
+        const mood = data.mood_summary;
+        html += `
+            <div class="mood-summary">
+                <div class="mood-emoji">${getMoodEmoji(mood.overall_mood)}</div>
+                <h3>Overall Mood: ${mood.overall_mood}</h3>
+                <p><strong>Dominant Emotion:</strong> ${mood.dominant_emotion}</p>
+                <p><strong>Confidence:</strong> ${mood.confidence}%</p>
+            </div>
+        `;
+        
+        // Emotion Distribution
+        if (mood.emotion_distribution) {
+            html += `<div class="analytics-card"><h4>Emotion Distribution</h4>`;
+            Object.entries(mood.emotion_distribution).forEach(([emotion, count]) => {
+                html += `<p>${emotion}: ${count} faces</p>`;
+            });
+            html += `</div>`;
+        }
+    }
+    
+    // Individual Emotion Results
+    if (data.emotions_detected && data.emotions_detected.length > 0) {
+        html += `<div class="analytics-card"><h4>Detailed Emotion Analysis</h4>`;
+        
+        data.emotions_detected.forEach(emotion => {
+            html += `
+                <div class="face-result">
+                    <h4>Face ${emotion.face_id + 1}</h4>
+                    <p><strong>Emotion:</strong> ${emotion.emotion} (${emotion.confidence}% confidence)</p>
+                    <p><strong>Gender:</strong> ${emotion.gender} | <strong>Age:</strong> ${emotion.age}</p>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+    }
+    
+    resultsDiv.innerHTML = html;
+}
+
+// Enhanced Crowd Analytics
+async function initializeCrowdAnalytics() {
+    await updateCrowdAnalytics();
+    setInterval(updateCrowdAnalytics, 5000);
+}
+
+async function updateCrowdAnalytics() {
+    try {
+        const response = await fetch('/crowd/heatmap');
+        const data = await response.json();
+        
+        if (data.heatmap) {
+            document.getElementById('crowdHeatmap').src = 'data:image/png;base64,' + data.heatmap;
+        }
+        
+        // Update stats
+        updateStatCard('crowdDensity', (data.crowd_density || 0) + '%');
+        updateStatCard('crowdPeople', data.total_people || 0);
+        
+        // Update density breakdown
+        const densityElement = document.getElementById('densityBreakdown');
+        if (densityElement && data.density_zones) {
+            const zones = data.density_zones;
+            densityElement.innerHTML = `
+                <p><strong>High Density:</strong> ${zones.high_density || 0} pixels</p>
+                <p><strong>Medium Density:</strong> ${zones.medium_density || 0} pixels</p>
+                <p><strong>Low Density:</strong> ${zones.low_density || 0} pixels</p>
+                <p><strong>Total Area:</strong> ${zones.total_area || 0} pixels</p>
+            `;
+        }
+        
+        // Update insights
+        const insightsElement = document.getElementById('crowdInsights');
+        if (insightsElement) {
+            const density = data.crowd_density || 0;
+            let insight = '';
+            
+            if (density < 20) insight = 'Low crowd density - comfortable space';
+            else if (density < 50) insight = 'Moderate crowd - normal conditions';
+            else if (density < 80) insight = 'High density - consider crowd control';
+            else insight = 'Very high density - immediate action recommended';
+            
+            insightsElement.innerHTML = `
+                <p><strong>Current Insight:</strong> ${insight}</p>
+                <p><strong>Active Streams:</strong> ${data.active_streams || 0}</p>
+                <p><strong>Last Update:</strong> ${new Date().toLocaleTimeString()}</p>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error updating crowd analytics:', error);
+    }
+}
+
+// Enhanced Behavior Analysis
+async function initializeBehaviorAnalysis() {
+    await updateBehaviorAnalysis();
+    setInterval(updateBehaviorAnalysis, 5000);
+}
+
+async function updateBehaviorAnalysis() {
+    try {
+        const response = await fetch('/behavior/analysis');
+        const data = await response.json();
+        
+        // Update stats
+        updateStatCard('trackedPersons', data.total_tracked_persons || 0);
+        updateStatCard('activeGroups', data.active_groups?.length || 0);
+        updateStatCard('suspiciousCount', data.suspicious_behaviors?.length || 0);
+        
+        // Update suspicious behaviors
+        const behaviorsElement = document.getElementById('suspiciousBehaviors');
+        if (behaviorsElement) {
+            if (data.suspicious_behaviors && data.suspicious_behaviors.length > 0) {
+                behaviorsElement.innerHTML = data.suspicious_behaviors.map(behavior => `
+                    <div class="behavior-item">
+                        <strong>${behavior.type.toUpperCase()}</strong>
+                        <p>Person: ${behavior.person_id} | Duration: ${Math.round(behavior.duration)}s</p>
+                        <small>Severity: ${behavior.severity} | ${new Date(behavior.timestamp * 1000).toLocaleTimeString()}</small>
+                    </div>
+                `).join('');
+            } else {
+                behaviorsElement.innerHTML = '<p>No suspicious behaviors detected</p>';
+            }
+        }
+        
+        // Update group formations
+        const groupsElement = document.getElementById('groupFormations');
+        if (groupsElement) {
+            if (data.active_groups && data.active_groups.length > 0) {
+                groupsElement.innerHTML = data.active_groups.map(group => `
+                    <div class="behavior-item">
+                        <strong>Group of ${group.size} people</strong>
+                        <p>Members: ${group.members.join(', ')}</p>
+                    </div>
+                `).join('');
+            } else {
+                groupsElement.innerHTML = '<p>No active groups detected</p>';
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error updating behavior analysis:', error);
+    }
+}
+
+// Enhanced Security Dashboard
+async function initializeSecurityDashboard() {
+    await updateSecurityDashboard();
+    setInterval(updateSecurityDashboard, 5000);
+}
+
+async function updateSecurityDashboard() {
+    try {
+        const [securityResponse, threatsResponse] = await Promise.all([
+            fetch('/security/stats'),
+            fetch('/security/threats')
+        ]);
+        
+        const securityData = await securityResponse.json();
+        const threatsData = await threatsResponse.json();
+        
+        // Update security stats
+        updateStatCard('totalAlerts', securityData.total_alerts || 0);
+        updateStatCard('peopleCount', securityData.current_people || 0);
+        updateStatCard('unauthorizedCount', securityData.unauthorized_count || 0);
+        
+        // Update threat alerts
+        const threatsElement = document.getElementById('threatAlertsList');
+        if (threatsElement) {
+            const threats = threatsData.current_threats || [];
+            if (threats.length > 0) {
+                threatsElement.innerHTML = threats.map(threat => `
+                    <div class="threat-item threat-${threat.level}">
+                        <strong>${threat.type.replace('_', ' ').toUpperCase()}</strong>
+                        <p>${threat.message} - ${threat.details}</p>
+                        <small>Location: ${threat.location} | ${new Date(threat.timestamp).toLocaleString()}</small>
+                    </div>
+                `).join('');
+            } else {
+                threatsElement.innerHTML = '<div class="threat-item threat-low"><strong>No active threats</strong><p>All systems normal</p></div>';
+            }
+        }
+        
+        // Update threat analysis
+        const analysisElement = document.getElementById('threatAnalysis');
+        if (analysisElement && threatsData.threat_report) {
+            const report = threatsData.threat_report;
+            analysisElement.innerHTML = `
+                <p><strong>Total Threats (24h):</strong> ${report.total_threats}</p>
+                <p><strong>High Severity:</strong> ${report.high_severity}</p>
+                <p><strong>Most Common:</strong> ${report.most_common_alert || 'None'}</p>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error updating security dashboard:', error);
+    }
+}
+
+// Utility Functions
+function showLoading(loadingDiv, button, message = 'Processing...') {
+    if (loadingDiv) {
+        loadingDiv.style.display = 'block';
+        if (message) {
+            loadingDiv.querySelector('p').textContent = message;
+        }
+    }
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '⏳ Processing...';
+    }
+}
+
+function hideLoading(loadingDiv, button) {
+    if (loadingDiv) loadingDiv.style.display = 'none';
+    if (button) {
+        button.disabled = false;
+        button.innerHTML = '🔍 Analyze Image';
+    }
+}
+
+function showError(container, message) {
+    container.innerHTML = `
+        <div class="error">
+            <h3>❌ Error</h3>
+            <p>${message}</p>
+        </div>
+    `;
+}
+
+function getMoodEmoji(mood) {
+    const emojis = {
+        'Positive': '😊',
+        'Negative': '😢', 
+        'Neutral': '😐'
+    };
+    return emojis[mood] || '😐';
+}
+
+function getEmotionClass(emotion) {
+    const classes = {
+        'Happy': 'happy',
+        'Sad': 'sad',
+        'Angry': 'angry',
+        'Neutral': 'neutral',
+        'Fear': 'sad',
+        'Surprise': 'happy',
+        'Disgust': 'angry'
+    };
+    return classes[emotion] || 'neutral';
+}
+
+function isAgeAuthorized(ageStr) {
+    try {
+        if (ageStr.includes('-')) {
+            const age = parseInt(ageStr.split('-')[0]);
+            return age >= 18;
+        }
+        return true;
+    } catch {
+        return true;
+    }
+}
+
+// Webcam Functionality
+function startCamera() {
+    document.getElementById('videoFeed').src = '/video_feed?' + new Date().getTime();
+}
+
+function stopCamera() {
+    document.getElementById('videoFeed').src = '';
+}
+
+function toggleFaceRecognition() {
+    alert('Face recognition toggled - this would enable/disable recognition in real-time');
+}
+
+// Mobile Section Initialization
+function initializeMobileSection() {
+    document.getElementById('mobileUrl').textContent = window.location.href;
+    updateStreams();
+    setInterval(updateStreams, 10000);
+}
+
+function updateStreams() {
+    // This would be enhanced with real stream data
+    document.getElementById('totalStreams').textContent = '2';
+    document.getElementById('totalPeople').textContent = '5';
+    document.getElementById('maleCount').textContent = '3';
+    document.getElementById('femaleCount').textContent = '2';
+}
+
+// Recording Functions
+async function startRecording() {
+    const sessionName = prompt('Enter session name (optional):') || 
+                      `session_${new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-')}`;
+    
+    try {
+        const response = await fetch('/recording/start', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({session_name: sessionName})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('recordingStatus').className = 'recording-status recording-active';
+            document.getElementById('recordingStatus').textContent = `Recording: ${sessionName}`;
+            alert('Recording started successfully!');
+        }
+    } catch (error) {
+        alert('Error starting recording: ' + error.message);
+    }
+}
+
+async function stopRecording() {
+    try {
+        const response = await fetch('/recording/stop', {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('recordingStatus').className = 'recording-status recording-inactive';
+            document.getElementById('recordingStatus').textContent = 'Not Recording';
+            alert('Recording stopped! Data saved.');
+        }
+    } catch (error) {
+        alert('Error stopping recording: ' + error.message);
+    }
+}
+
+function refreshStreams() {
+    updateStreams();
+    alert('Streams refreshed!');
+}
+
+// Security Functions
+function toggleMonitoring() {
+    AppState.isMonitoring = !AppState.isMonitoring;
+    const button = document.querySelector('button[onclick="toggleMonitoring()"]');
+    
+    if (AppState.isMonitoring) {
+        button.innerHTML = '⏸️ Pause Monitoring';
+        button.classList.remove('btn-danger');
+        alert('Monitoring resumed');
+    } else {
+        button.innerHTML = '▶️ Resume Monitoring';
+        button.classList.add('btn-danger');
+        alert('Monitoring paused');
+    }
+}
+
+function lockdown() {
+    if (confirm('🚨 Activate emergency lockdown? This will restrict all access points.')) {
+        fetch('/security/lockdown', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Lockdown activated! All access points secured.');
+                }
+            })
+            .catch(error => {
+                alert('Error activating lockdown: ' + error.message);
+            });
+    }
+}
+
+function generateReport() {
+    alert('Comprehensive report generation would be implemented here');
+}
+
+function viewAccessRules() {
+    alert('Access rules management interface would open here');
+}
+
+// Initialize Enhanced Mobile Streaming on Mobile Devices
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize enhanced mobile stream
+        window.mobileStream = new MobileCameraStream();
+        window.mobileStream.initialize();
+
+        // Enhanced preview binding
+        setTimeout(() => {
+            try {
+                const preview = document.getElementById('mobilePreview');
+                if (preview && window.mobileStream && window.mobileStream.videoElement) {
+                    preview.srcObject = window.mobileStream.videoElement.srcObject;
+                    preview.play().catch(() => {});
+                }
+
+                const info = document.getElementById('streamInfo');
+                if (info && window.mobileStream) {
+                    info.textContent = `Enhanced Stream ID: ${window.mobileStream.streamId}`;
+                }
+                
+                // Add enhanced controls
+                addEnhancedMobileControls();
+                
+            } catch (e) {
+                console.warn('Could not bind enhanced preview elements:', e);
+            }
+        }, 1000);
+    });
+}
+
+function addEnhancedMobileControls() {
+    const controlsDiv = document.querySelector('#mobile-section .controls');
+    if (!controlsDiv || !window.mobileStream) return;
+
+    // Add blur toggle
+    const blurToggle = document.createElement('button');
+    blurToggle.className = 'btn';
+    blurToggle.innerHTML = '🎭 Toggle Blur';
+    blurToggle.onclick = () => {
+        window.mobileStream.updateSettings({
+            blurFaces: !window.mobileStream.settings.blurFaces
+        });
+        alert(`Face blur ${window.mobileStream.settings.blurFaces ? 'enabled' : 'disabled'}`);
+    };
+
+    // Add quality selector
+    const qualitySelect = document.createElement('select');
+    qualitySelect.className = 'btn';
+    qualitySelect.innerHTML = `
+        <option value="0.6">Low Quality</option>
+        <option value="0.8" selected>Medium Quality</option>
+        <option value="1.0">High Quality</option>
+    `;
+    qualitySelect.onchange = (e) => {
+        window.mobileStream.updateSettings({
+            quality: parseFloat(e.target.value)
+        });
+    };
+
+    controlsDiv.appendChild(blurToggle);
+    controlsDiv.appendChild(qualitySelect);
+}
+
+// Initialize Real-time Updates
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Socket.IO for real-time updates
+    initializeRealTimeUpdates();
+    
+    // Start dashboard if it's the active section
+    if (AppState.currentSection === 'dashboard') {
+        initializeDashboard();
+    }
+    
+    // Test server connection
+    fetch('/health').catch(() => {
+        console.log('Server not responding - running in enhanced demo mode');
+    });
+});
+
+function initializeRealTimeUpdates() {
+    try {
+        const socket = io();
+        
+        socket.on('dashboard_update', (data) => {
+            updateRealTimeStats(data);
+        });
+        
+        socket.on('stream_update', (data) => {
+            // Update specific stream if needed
+            console.log('Stream update received:', data.stream_id);
+        });
+        
+        socket.on('threat_alert', (data) => {
+            showThreatAlert(data);
+        });
+        
+    } catch (e) {
+        console.warn('Socket.IO not available for real-time updates');
+    }
+}
+
+function updateRealTimeStats(data) {
+    // Update any real-time elements on the page
+    const liveElements = document.querySelectorAll('.live-badge');
+    liveElements.forEach(el => {
+        el.style.animation = 'pulse 2s infinite';
+    });
+}
+
+function showThreatAlert(threat) {
+    // Show browser notification for high-level threats
+    if (threat.level === 'high' && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification('🚨 Security Alert', {
+            body: `${threat.type} - ${threat.message}`,
+            icon: '/favicon.ico'
+        });
+    }
+    
+    // Show in-page alert
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `threat-item threat-${threat.level}`;
+    alertDiv.innerHTML = `
+        <strong>NEW ALERT: ${threat.type.toUpperCase()}</strong>
+        <p>${threat.message}</p>
+        <small>${new Date().toLocaleTimeString()}</small>
+    `;
+    
+    const alertsContainer = document.getElementById('threatAlertsList');
+    if (alertsContainer) {
+        alertsContainer.insertBefore(alertDiv, alertsContainer.firstChild);
+    }
+}
+
+// Request notification permission
+if ('Notification' in window) {
+    Notification.requestPermission();
+}
+
+console.log('Enhanced Age & Gender Detection System loaded successfully!');
+    </script>
+</body>
+</html>
